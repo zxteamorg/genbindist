@@ -20,11 +20,13 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ -f "/etc/pkglist" ]; then
-    cat /etc/pkglist | xargs emerge --verbose --newuse --deep --update --buildpkgonly >> "/var/log/pkg-update.log"
+  for PACKAGE in $(cat /etc/pkglist); do
+    emerge --verbose --newuse --deep --update --buildpkgonly $PACKAGE >> "/var/log/pkg-update.log"
     if [ $? -ne 0 ]; then
-    echo "Cannot update packages by /etc/pkglist" >> "/var/log/pkg-update.err"
-    exit 2
-  fi
+      echo "Cannot update package $PACKAGE by /etc/pkglist" >> "/var/log/pkg-update.err"
+      exit 2
+    fi
+  done
 fi
 
 emerge @preserved-rebuild >> "/var/log/pkg-update.log"
